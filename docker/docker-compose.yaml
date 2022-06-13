@@ -1,0 +1,52 @@
+---
+version: '3'
+services:
+  jobmanager:
+    build:
+      context: ./images/flink/
+      args:
+        FLINK_VERSION: 1.12.0
+    expose:
+      - "6123"
+    ports:
+      - "8081:8081"
+    command: jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 3
+        env.java.opts: "-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/opt/delta-test-data/jobmanager.hprof -Xloggc:jm.gc.log -XX:+PrintGCApplicationStoppedTime -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=10M -XX:+PrintPromotionFailure -XX:+PrintGCCause"
+      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+    volumes:
+      - /tmp/delta-test-data/:/opt/delta-test-data/
+      - /tmp/parquet-test-data/:/opt/parquet-test-data/
+
+  taskmanager:
+    build:
+      context: ./images/flink/
+      args:
+        FLINK_VERSION: 1.12.0
+    ports:
+      - "5000:5000"
+    expose:
+      - "6121"
+      - "6122"
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    links:
+      - "jobmanager:jobmanager"
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 3
+        taskmanager.memory.process.size: 5g
+        jobmanager.memory.heap.size: 4g
+        env.java.opts: "-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/opt/delta-test-data/taskmanager.hprof -Xloggc:tm.gc.log -XX:+PrintGCApplicationStoppedTime -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=10M -XX:+PrintPromotionFailure -XX:+PrintGCCause  -Djava.rmi.server.hostname=0.0.0.0 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=5000 -Dcom.sun.management.jmxremote.rmi.port=5000 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+        taskmanager.debug.memory.log: true
+        taskmanager.debug.memory.log-interval: 5000
+    volumes:
+      - /tmp/delta-test-data/:/opt/delta-test-data/
+      - /tmp/parquet-test-data/:/opt/parquet-test-data/
