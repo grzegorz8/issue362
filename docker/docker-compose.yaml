@@ -5,7 +5,7 @@ services:
     build:
       context: ./images/flink/
       args:
-        FLINK_VERSION: 1.12.0
+        FLINK_VERSION: 1.13.0
     expose:
       - "6123"
     ports:
@@ -26,7 +26,7 @@ services:
     build:
       context: ./images/flink/
       args:
-        FLINK_VERSION: 1.12.0
+        FLINK_VERSION: 1.13.0
     ports:
       - "5000:5000"
     expose:
