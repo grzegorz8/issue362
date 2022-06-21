@@ -16,9 +16,9 @@ public class DeltaStreamingJob {
 
     public static void main(String[] args) throws Exception {
         ParameterTool parameters = ParameterTool.fromArgs(args);
-        int inputRecordsCount = parameters.getInt("input-records", 2_000_000);
-        int partitionCount = parameters.getInt("partition-count", 10);
-        int checkpointIntervalInSeconds = parameters.getInt("checkpoint-interval-in-seconds", 60);
+        int inputRecordsCount = parameters.getInt("input-records", 20_000_000);
+        int partitionCount = parameters.getInt("partition-count", 2);
+        int checkpointIntervalInSeconds = parameters.getInt("checkpoint-interval-in-seconds", 5);
         String tablePath = parameters.get("delta-table-path", "/opt/delta-test-data/");
 
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
